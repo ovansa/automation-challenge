@@ -1,0 +1,104 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.12.1
+
+      - name: Install dependencies
+        run: pnpm install -r
+
+      - name: Build shared package
+        run: pnpm --filter shared run build
+
+      - name: Run backend tests
+        run: pnpm run test:backend
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.12.1
+
+      - name: Install dependencies
+        run: pnpm install -r
+
+      - name: Build shared package
+        run: pnpm --filter shared run build
+
+      - name: Install Cypress binary
+        run: pnpm --filter e2e exec cypress install
+
+      - name: Run E2E tests
+        run: pnpm --filter e2e run test:headless
+        env:
+          CI: true
+
+      - name: Upload Cypress screenshots (on failure)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: e2e/cypress/screenshots
+          retention-days: 7
+
+      - name: Upload Cypress videos (always)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: e2e/cypress/videos
+          retention-days: 7
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [backend-tests, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Report test results
+        run: |
+          if [[ "${{ needs.backend-tests.result }}" == "success" && "${{ needs.e2e-tests.result }}" == "success" ]]; then
+            echo "✅ All tests passed!"
+            exit 0
+          else
+            echo "❌ Some tests failed:"
+            echo "Backend tests: ${{ needs.backend-tests.result }}"
+            echo "E2E tests: ${{ needs.e2e-tests.result }}"
+            exit 1
+          fi
