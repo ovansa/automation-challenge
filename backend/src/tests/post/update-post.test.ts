@@ -21,7 +21,6 @@ beforeEach(async () => {
   // Register and login as another user
   const { token: nonAuthorToken } = await registerAndLoginUser();
   otherUserToken = nonAuthorToken;
-  console.log('otherUserToken Token:', otherUserToken);
 
   // Create a post as the author
   const post = await createPost(token);

@@ -13,7 +13,7 @@ export const generateUserData = (
 ) => ({
   username:
     overrides?.username ||
-    `${faker.person.firstName()}${faker.person.lastName()}`,
+    `${faker.person.firstName()}s${faker.animal.petName()}`,
   email: overrides?.email || faker.internet.email(),
   password: overrides?.password || 'password123',
 });
