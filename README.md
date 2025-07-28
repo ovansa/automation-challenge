@@ -1,4 +1,4 @@
-# Quick Post App
+# Automation Challenge
 
 A full-stack application for user authentication and post management, built with TypeScript and designed for comprehensive testing. Features a clean monorepo architecture with complete test coverage using Jest and Cypress.
 
@@ -23,8 +23,8 @@ quick-post-app/
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/quick-post-app.git
-cd quick-post-app
+git clone https://github.com/ovansa/automation-challenge.git
+cd automation-challenge
 pnpm install -r
 pnpm run setup
 ```
